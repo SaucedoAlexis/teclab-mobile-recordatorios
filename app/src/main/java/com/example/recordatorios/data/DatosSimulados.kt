@@ -11,6 +11,9 @@ object DatosSimulados {
     val hogar = Categoria("Hogar")
     val estudio = Categoria("Estudio")
 
+    // Categorías definidas: el formulario solo acepta estas opciones
+    val categorias: List<Categoria> = listOf(trabajo, salud, hogar, estudio)
+
     val recordatorios: List<Recordatorio> = listOf(
         Recordatorio(1, "Entregar informe mensual", trabajo, Prioridad.Alta, EstadoRecordatorio.Pendiente,
             descripcion = "Enviar al coordinador antes del viernes", fechaAviso = "28/10/2026 09:00"),

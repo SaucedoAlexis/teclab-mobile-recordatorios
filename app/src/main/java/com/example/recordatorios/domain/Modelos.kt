@@ -10,6 +10,10 @@ sealed class Prioridad(val etiqueta: String, val peso: Int) {
     data object Baja : Prioridad("Baja", 1)
 }
 
+// Opciones que se ofrecen en el formulario (se calcula con get() para no depender del orden de inicialización)
+val prioridadesDisponibles: List<Prioridad>
+    get() = listOf(Prioridad.Alta, Prioridad.Media, Prioridad.Baja)
+
 // Cada estado transporta solo la información que necesita
 sealed interface EstadoRecordatorio {
     data object Pendiente : EstadoRecordatorio
@@ -28,14 +32,6 @@ data class Recordatorio(
     val ubicacion: String? = null,
     val fechaAviso: String? = null
 )
-
-// Estados posibles de la pantalla: nunca dos a la vez
-sealed interface EstadoPantalla {
-    data object Cargando : EstadoPantalla
-    data class ConDatos(val recordatorios: List<Recordatorio>) : EstadoPantalla
-    data object SinResultados : EstadoPantalla
-    data class Error(val mensaje: String) : EstadoPantalla
-}
 
 // Filtros disponibles en la interfaz
 sealed class FiltroEstado(val etiqueta: String) {

@@ -1,6 +1,41 @@
 <resources>
     <string name="app_name">Recordatorios</string>
-    <string name="titulo_pantalla">Mis recordatorios</string>
-    <string name="sin_resultados">No hay recordatorios para este filtro.</string>
-    <string name="resumen">%1$d válidos · %2$d descartados · %3$d categorías</string>
+
+    <!-- Títulos de pantalla -->
+    <string name="titulo_listado">Mis recordatorios</string>
+    <string name="titulo_crear">Nuevo recordatorio</string>
+    <string name="titulo_detalle">Detalle del recordatorio</string>
+
+    <!-- Acciones -->
+    <string name="accion_crear">Crear recordatorio</string>
+    <string name="accion_reintentar">Reintentar</string>
+    <string name="accion_guardar">Guardar</string>
+    <string name="accion_guardando">Guardando…</string>
+    <string name="accion_cancelar">Cancelar</string>
+    <string name="accion_volver">Volver</string>
+    <string name="accion_simular">Simular</string>
+
+    <!-- Estados -->
+    <string name="cargando">Cargando…</string>
+    <string name="listado_vacio">Todavía no existen recordatorios. Creá el primero para empezar.</string>
+    <string name="descripcion_error">Error</string>
+
+    <!-- Formulario -->
+    <string name="campo_titulo">Título</string>
+    <string name="campo_descripcion">Descripción (opcional)</string>
+    <string name="campo_categoria">Categoría</string>
+    <string name="campo_prioridad">Prioridad</string>
+    <string name="contador_caracteres">%1$d/%2$d</string>
+
+    <!-- Tarjeta y detalle -->
+    <string name="etiqueta_prioridad">Prioridad %1$s</string>
+    <string name="estado_pendiente">Pendiente</string>
+    <string name="estado_completado">Completado el %1$s</string>
+    <string name="estado_vencido">Vencido hace %1$d día(s)</string>
+    <string name="detalle_descripcion">Descripción</string>
+    <string name="detalle_sin_descripcion">Sin descripción</string>
+    <string name="detalle_estado">Estado</string>
+    <string name="detalle_ubicacion">Ubicación</string>
+    <string name="detalle_aviso">Aviso</string>
+    <string name="detalle_identificador">Identificador</string>
 </resources>
