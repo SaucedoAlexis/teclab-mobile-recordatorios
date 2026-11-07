@@ -4,7 +4,9 @@
     <!-- Títulos de pantalla -->
     <string name="titulo_listado">Mis recordatorios</string>
     <string name="titulo_crear">Nuevo recordatorio</string>
+    <string name="titulo_editar">Editar recordatorio</string>
     <string name="titulo_detalle">Detalle del recordatorio</string>
+    <string name="titulo_ajustes">Ajustes</string>
 
     <!-- Acciones -->
     <string name="accion_crear">Crear recordatorio</string>
@@ -13,12 +15,26 @@
     <string name="accion_guardando">Guardando…</string>
     <string name="accion_cancelar">Cancelar</string>
     <string name="accion_volver">Volver</string>
-    <string name="accion_simular">Simular</string>
+    <string name="accion_sincronizar">Sincronizar ahora</string>
+    <string name="accion_ajustes">Ajustes</string>
+    <string name="accion_editar">Editar</string>
+    <string name="accion_eliminar">Eliminar</string>
+    <string name="accion_marcar_completado">Marcar como completado</string>
+    <string name="accion_marcar_pendiente">Marcar como pendiente</string>
 
     <!-- Estados -->
     <string name="cargando">Cargando…</string>
     <string name="listado_vacio">Todavía no existen recordatorios. Creá el primero para empezar.</string>
     <string name="descripcion_error">Error</string>
+
+    <!-- Sincronización -->
+    <string name="sin_conexion">Estás sin conexión. Los cambios se guardan en el teléfono y se sincronizan cuando vuelva la red.</string>
+    <string name="cambios_sin_sincronizar">Cambios sin sincronizar: %1$d</string>
+    <string name="sincronizando">Sincronizando…</string>
+    <string name="sync_sincronizado">✓ Sincronizado</string>
+    <string name="sync_pendiente">⟳ Pendiente de sincronizar</string>
+    <string name="sync_pendiente_borrar">⟳ Pendiente de eliminar</string>
+    <string name="sync_error">⚠ Rechazado por el servidor</string>
 
     <!-- Formulario -->
     <string name="campo_titulo">Título</string>
@@ -31,11 +47,23 @@
     <string name="etiqueta_prioridad">Prioridad %1$s</string>
     <string name="estado_pendiente">Pendiente</string>
     <string name="estado_completado">Completado el %1$s</string>
-    <string name="estado_vencido">Vencido hace %1$d día(s)</string>
     <string name="detalle_descripcion">Descripción</string>
     <string name="detalle_sin_descripcion">Sin descripción</string>
     <string name="detalle_estado">Estado</string>
-    <string name="detalle_ubicacion">Ubicación</string>
-    <string name="detalle_aviso">Aviso</string>
+    <string name="detalle_creado">Creado</string>
+    <string name="detalle_modificado">Última modificación</string>
+    <string name="detalle_sincronizacion">Sincronización</string>
     <string name="detalle_identificador">Identificador</string>
+    <string name="confirmar_eliminar_titulo">¿Eliminar el recordatorio?</string>
+    <string name="confirmar_eliminar_texto">Se va a eliminar \"%1$s\". Si no hay conexión, se borra del servidor cuando vuelva la red.</string>
+
+    <!-- Ajustes -->
+    <string name="ajustes_tema">Tema</string>
+    <string name="ajustes_mostrar_completados">Mostrar recordatorios completados</string>
+    <string name="ajustes_orden">Orden del listado</string>
+    <string name="ajustes_info">Estas opciones se guardan en el teléfono con DataStore y se mantienen al cerrar la app.</string>
+    <string name="ajustes_orden_invalido">El orden guardado no era una opción válida. Se usa \"Por prioridad\" (valor por defecto) hasta que elijas otro.</string>
+    <string name="ajustes_tema_invalido">El tema guardado no era una opción válida. Se usa el del sistema (valor por defecto).</string>
+    <string name="ajustes_pruebas">Pruebas (solo en la versión de desarrollo)</string>
+    <string name="ajustes_guardar_invalido">Guardar un orden inválido</string>
 </resources>

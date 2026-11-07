@@ -13,3 +13,9 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Configuración local del servicio remoto (ver api.properties.example)
+api.properties
+
+# Datos que genera el servidor simulado al usarlo
+servidor-simulado/datos.json

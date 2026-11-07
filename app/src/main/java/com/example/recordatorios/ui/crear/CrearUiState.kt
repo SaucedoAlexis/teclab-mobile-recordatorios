@@ -12,7 +12,8 @@ sealed interface EstadoEnvio {
     data class Error(val mensaje: String) : EstadoEnvio
 }
 
-// Estado inmutable del formulario: valores de los campos, mensajes de validación y envío
+// Estado inmutable del formulario: valores de los campos, mensajes de validación y envío.
+// El mismo formulario sirve para crear y para editar (esEdicion).
 data class CrearUiState(
     val titulo: String = "",
     val descripcion: String = "",
@@ -21,11 +22,13 @@ data class CrearUiState(
     val categorias: List<Categoria> = emptyList(),
     val errores: ErroresFormulario = ErroresFormulario(),
     val mostrarErrores: Boolean = false,
-    val envio: EstadoEnvio = EstadoEnvio.Editando
+    val envio: EstadoEnvio = EstadoEnvio.Editando,
+    val esEdicion: Boolean = false,
+    val cargandoRegistro: Boolean = false
 ) {
     // Datos derivados: se calculan, no se guardan aparte
     val enviando: Boolean get() = envio == EstadoEnvio.Enviando
-    val puedeGuardar: Boolean get() = errores.esValido && !enviando
+    val puedeGuardar: Boolean get() = errores.esValido && !enviando && !cargandoRegistro
 
     // Los errores aparecen recién cuando el usuario empezó a completar el formulario
     val erroresVisibles: ErroresFormulario get() = if (mostrarErrores) errores else ErroresFormulario()

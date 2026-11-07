@@ -1,7 +1,6 @@
 package com.example.recordatorios.validation
 
 import com.example.recordatorios.domain.Categoria
-import com.example.recordatorios.domain.EstadoRecordatorio
 import com.example.recordatorios.domain.Prioridad
 import com.example.recordatorios.domain.Recordatorio
 
@@ -19,7 +18,6 @@ fun validarRecordatorio(r: Recordatorio): ResultadoValidacion {
         else if (r.titulo.trim().length < MIN_CARACTERES_TITULO) add("El título debe tener al menos 4 caracteres")
         if (r.titulo.length > 60) add("El título no puede superar 60 caracteres")
         if (r.descripcion != null && r.descripcion.length > MAX_CARACTERES_DESCRIPCION) add("La descripción no puede superar 200 caracteres")
-        if (r.estado is EstadoRecordatorio.Vencido && r.estado.diasDeRetraso <= 0) add("Un vencido debe tener días de retraso positivos")
     }
     return if (errores.isEmpty()) ResultadoValidacion.Valido else ResultadoValidacion.Invalido(errores)
 }

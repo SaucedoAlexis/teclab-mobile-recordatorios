@@ -36,7 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.recordatorios.R
-import com.example.recordatorios.data.DatosSimulados
+import com.example.recordatorios.data.Categorias
 import com.example.recordatorios.domain.Categoria
 import com.example.recordatorios.domain.Prioridad
 import com.example.recordatorios.domain.prioridadesDisponibles
@@ -82,13 +82,13 @@ fun CrearContenido(
     modifier: Modifier = Modifier
 ) {
     val errores = uiState.erroresVisibles
-    val editable = !uiState.enviando
+    val editable = !uiState.enviando && !uiState.cargandoRegistro
 
     Scaffold(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.titulo_crear)) },
+                title = { Text(stringResource(if (uiState.esEdicion) R.string.titulo_editar else R.string.titulo_crear)) },
                 navigationIcon = {
                     IconButton(onClick = onCancelar) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.accion_cancelar))
@@ -185,8 +185,8 @@ private fun CrearContenidoPreview() {
         CrearContenido(
             uiState = CrearUiState(
                 titulo = "Pag",
-                categorias = DatosSimulados.categorias,
-                errores = validarFormulario("Pag", "", null, null, DatosSimulados.categorias),
+                categorias = Categorias.todas,
+                errores = validarFormulario("Pag", "", null, null, Categorias.todas),
                 mostrarErrores = true
             ),
             onTituloChange = {}, onDescripcionChange = {}, onCategoriaChange = {}, onPrioridadChange = {},

@@ -10,15 +10,21 @@ fun List<Recordatorio>.filtrarPorEstado(filtro: FiltroEstado): List<Recordatorio
         FiltroEstado.Todos -> this
         FiltroEstado.Pendientes -> filter { it.estado is EstadoRecordatorio.Pendiente }
         FiltroEstado.Completados -> filter { it.estado is EstadoRecordatorio.Completado }
-        FiltroEstado.Vencidos -> filter { it.estado is EstadoRecordatorio.Vencido }
     }
 
 // filter por prioridad
 fun List<Recordatorio>.filtrarPorPrioridad(prioridad: Prioridad): List<Recordatorio> =
     filter { it.prioridad == prioridad }
 
+// Orden del listado según la preferencia elegida (los más nuevos primero dentro de cada grupo)
 fun List<Recordatorio>.ordenarPorPrioridad(): List<Recordatorio> =
-    sortedByDescending { it.prioridad.peso }
+    sortedWith(compareByDescending<Recordatorio> { it.prioridad.peso }.thenByDescending { it.fechaCreacion })
+
+fun List<Recordatorio>.ordenarPorFecha(): List<Recordatorio> =
+    sortedByDescending { it.fechaCreacion }
+
+fun List<Recordatorio>.ordenarPorTitulo(): List<Recordatorio> =
+    sortedBy { it.titulo.lowercase() }
 
 // Map: cantidad de recordatorios por prioridad
 fun List<Recordatorio>.contarPorPrioridad(): Map<Prioridad, Int> =

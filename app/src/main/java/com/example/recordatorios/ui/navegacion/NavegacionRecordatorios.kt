@@ -6,8 +6,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.example.recordatorios.data.ControlSimulacion
 import com.example.recordatorios.data.RecordatorioRepository
+import com.example.recordatorios.data.preferencias.PreferenciasRepository
+import com.example.recordatorios.ui.ajustes.AjustesScreen
+import com.example.recordatorios.ui.ajustes.AjustesViewModel
 import com.example.recordatorios.ui.crear.CrearScreen
 import com.example.recordatorios.ui.crear.CrearViewModel
 import com.example.recordatorios.ui.detalle.DetalleScreen
@@ -19,25 +21,27 @@ import com.example.recordatorios.ui.lista.ListaViewModel
 @Composable
 fun NavegacionRecordatorios(
     repositorio: RecordatorioRepository,
-    simulacion: ControlSimulacion
+    preferencias: PreferenciasRepository
 ) {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = RutaLista) {
         composable<RutaLista> {
             // viewModel { } crea el ViewModel una vez por destino y le pasa la interfaz del repositorio
-            val viewModel = viewModel { ListaViewModel(repositorio, simulacion) }
+            val viewModel = viewModel { ListaViewModel(repositorio) }
             ListaScreen(
                 viewModel = viewModel,
-                onCrearRecordatorio = { navController.navigate(RutaCrear) { launchSingleTop = true } },
-                onRecordatorioClick = { id -> navController.navigate(RutaDetalle(id)) { launchSingleTop = true } }
+                onCrearRecordatorio = { navController.navigate(RutaFormulario()) { launchSingleTop = true } },
+                onRecordatorioClick = { id -> navController.navigate(RutaDetalle(id)) { launchSingleTop = true } },
+                onAbrirAjustes = { navController.navigate(RutaAjustes) { launchSingleTop = true } }
             )
         }
-        composable<RutaCrear> {
-            val viewModel = viewModel { CrearViewModel(repositorio) }
+        composable<RutaFormulario> { entrada ->
+            val ruta = entrada.toRoute<RutaFormulario>()
+            val viewModel = viewModel { CrearViewModel(repositorio, ruta.id) }
             CrearScreen(
                 viewModel = viewModel,
-                // popBackStack() vuelve al listado que ya estaba en la pila; no agrega otra copia
+                // popBackStack() vuelve a la pantalla anterior; no agrega otra copia
                 onGuardado = { navController.popBackStack() },
                 onCancelar = { navController.popBackStack() }
             )
@@ -45,7 +49,15 @@ fun NavegacionRecordatorios(
         composable<RutaDetalle> { entrada ->
             val ruta = entrada.toRoute<RutaDetalle>()
             val viewModel = viewModel { DetalleViewModel(ruta.id, repositorio) }
-            DetalleScreen(viewModel = viewModel, onVolver = { navController.popBackStack() })
+            DetalleScreen(
+                viewModel = viewModel,
+                onEditar = { navController.navigate(RutaFormulario(ruta.id)) { launchSingleTop = true } },
+                onVolver = { navController.popBackStack() }
+            )
+        }
+        composable<RutaAjustes> {
+            val viewModel = viewModel { AjustesViewModel(preferencias) }
+            AjustesScreen(viewModel = viewModel, onVolver = { navController.popBackStack() })
         }
     }
 }
