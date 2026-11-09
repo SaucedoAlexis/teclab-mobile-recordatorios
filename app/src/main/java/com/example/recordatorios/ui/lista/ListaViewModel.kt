@@ -88,12 +88,12 @@ class ListaViewModel(private val repositorio: RecordatorioRepository) : ViewMode
         is EstadoSincronizacion.Terminada -> when (val resultado = estado.resultado) {
             is ResultadoSincronizacion.Exito ->
                 if (resultado.rechazados > 0) {
-                    "Sincronizado a las ${formatearHora(estado.hora)}. El servidor rechazó ${resultado.rechazados} recordatorio(s)." to true
+                    "Sincronizado a las ${formatearHora(estado.hora)}. La nube rechazó ${resultado.rechazados} recordatorio(s)." to true
                 } else {
                     "Sincronizado a las ${formatearHora(estado.hora)}" to false
                 }
             ResultadoSincronizacion.SinConexion ->
-                "No se pudo conectar con el servidor. Los cambios quedan guardados en el teléfono." to true
+                "No se pudo conectar con la nube. Los cambios quedan guardados en el teléfono." to true
             is ResultadoSincronizacion.ErrorReintentable ->
                 "${resultado.motivo}. Los datos guardados se siguen mostrando y se va a reintentar." to true
             is ResultadoSincronizacion.ErrorPermanente ->

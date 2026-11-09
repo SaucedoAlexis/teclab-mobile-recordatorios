@@ -26,12 +26,12 @@ sealed interface EstadoRecordatorio {
     data class Completado(val fechaCompletado: Long) : EstadoRecordatorio
 }
 
-// Indica si el registro local ya está igual en el servidor o si falta enviarlo
+// Indica si el registro local ya está igual en la nube (Firestore) o si falta enviarlo
 enum class EstadoSync {
     SINCRONIZADO,       // local y remoto coinciden
     PENDIENTE,          // creado o modificado en el teléfono, falta enviarlo
-    PENDIENTE_BORRAR,   // eliminado en el teléfono, falta avisarle al servidor
-    ERROR               // el servidor lo rechazó (por ejemplo, un 400): necesita revisión
+    PENDIENTE_BORRAR,   // eliminado en el teléfono, falta borrarlo de la nube
+    ERROR               // la nube lo rechazó (reglas o datos inválidos): necesita revisión
 }
 
 // Modelo que usa la app (pantallas y ViewModel). No conoce Room ni Retrofit.

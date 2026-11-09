@@ -9,14 +9,17 @@ import com.example.recordatorios.domain.EstadoSync
 // Una fila de la tabla "recordatorios". Responde al esquema de Room, no a la pantalla ni al servidor.
 @Entity(
     tableName = "recordatorios",
-    // Índice para que la búsqueda de pendientes de sincronizar sea rápida
-    indices = [Index(value = ["estado_sync"])]
+    // Índices para que las búsquedas de pendientes y por cuenta sean rápidas
+    indices = [Index(value = ["estado_sync"]), Index(value = ["uid"])]
 )
 data class RecordatorioEntity(
     // Identificador estable (UUID) creado en el teléfono. El servidor usa el mismo id,
     // así que reenviar un recordatorio actualiza el mismo registro en vez de duplicarlo.
     @PrimaryKey
     val id: String,
+    // Actividad 4: cuenta dueña del recordatorio (uid de Firebase Authentication).
+    // Todas las consultas filtran por esta columna, así una cuenta nunca ve filas de otra.
+    val uid: String,
     val titulo: String,
     val descripcion: String?,
     val categoria: String,

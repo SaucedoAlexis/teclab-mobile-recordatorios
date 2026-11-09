@@ -7,11 +7,10 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 // Reúne las entidades, la versión del esquema y los DAO.
-// version = 1 porque es la primera base de la app. Si en el Módulo 4 se agregan columnas
-// (ubicación, aviso) hay que subir la versión y escribir una migración que conserve los datos.
+// version 1: Actividad 3. version 2: Actividad 4 (columna uid, ver MIGRACION_1_2).
 @Database(
     entities = [RecordatorioEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 @TypeConverters(Conversores::class)
@@ -26,6 +25,8 @@ abstract class BaseDatosRecordatorios : RoomDatabase() {
                 context.applicationContext,
                 BaseDatosRecordatorios::class.java,
                 "recordatorios.db"
-            ).build()
+            )
+                .addMigrations(MIGRACION_1_2)
+                .build()
     }
 }

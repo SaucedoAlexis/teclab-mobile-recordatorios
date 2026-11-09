@@ -14,8 +14,9 @@
 .cxx
 local.properties
 
-# Configuración local del servicio remoto (ver api.properties.example)
-api.properties
 
-# Datos que genera el servidor simulado al usarlo
-servidor-simulado/datos.json
+# Actividad 4: configuración de Firebase y firma de la release (no se suben al repo público)
+app/google-services.json
+keystore.properties
+*.jks
+*.keystore

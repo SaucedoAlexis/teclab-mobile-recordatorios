@@ -7,6 +7,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.recordatorios.data.RecordatorioRepository
+import com.example.recordatorios.data.auth.AuthRepository
+import com.example.recordatorios.data.remoto.PruebaAccesoCruzado
 import com.example.recordatorios.data.preferencias.PreferenciasRepository
 import com.example.recordatorios.ui.ajustes.AjustesScreen
 import com.example.recordatorios.ui.ajustes.AjustesViewModel
@@ -21,7 +23,9 @@ import com.example.recordatorios.ui.lista.ListaViewModel
 @Composable
 fun NavegacionRecordatorios(
     repositorio: RecordatorioRepository,
-    preferencias: PreferenciasRepository
+    preferencias: PreferenciasRepository,
+    auth: AuthRepository,
+    pruebaAcceso: PruebaAccesoCruzado
 ) {
     val navController = rememberNavController()
 
@@ -56,7 +60,7 @@ fun NavegacionRecordatorios(
             )
         }
         composable<RutaAjustes> {
-            val viewModel = viewModel { AjustesViewModel(preferencias) }
+            val viewModel = viewModel { AjustesViewModel(preferencias, auth, repositorio, pruebaAcceso) }
             AjustesScreen(viewModel = viewModel, onVolver = { navController.popBackStack() })
         }
     }

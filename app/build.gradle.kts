@@ -6,14 +6,13 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
+    // Lee app/google-services.json y genera la configuración de Firebase para cada variante
+    alias(libs.plugins.google.services)
 }
 
-// Configuración del servicio remoto: se lee de api.properties (no se sube a GitHub).
-// Si el archivo no existe, se usa api.properties.example, que tiene valores de prueba sin secretos.
-val apiProperties = Properties().apply {
-    val propio = rootProject.file("api.properties")
-    val ejemplo = rootProject.file("api.properties.example")
-    val archivo = if (propio.exists()) propio else ejemplo
+// Credenciales de firma: keystore.properties en la raíz del proyecto (no se sube a Git)
+val keystoreProperties = Properties().apply {
+    val archivo = rootProject.file("keystore.properties")
     if (archivo.exists()) archivo.inputStream().use { load(it) }
 }
 
@@ -27,22 +26,57 @@ android {
         applicationId = "com.example.recordatorios"
         minSdk = 24
         targetSdk = 37
-        versionCode = 3
-        versionName = "3.0"
+        // Actividad 4: versión candidata para testers.
+        // versionCode: entero que crece en cada entrega (Android lo usa para saber qué es una actualización).
+        // versionName: lo que lee el equipo de pruebas en sus reportes.
+        versionCode = 4
+        versionName = "4.0.0-rc1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
 
-        // Quedan disponibles en el código como BuildConfig.API_BASE_URL y BuildConfig.API_KEY
-        buildConfigField("String", "API_BASE_URL", "\"${apiProperties.getProperty("api.baseUrl", "http://localhost:3000/")}\"")
-        buildConfigField("String", "API_KEY", "\"${apiProperties.getProperty("api.key", "")}\"")
+    // Firma de la release. Las credenciales se leen de keystore.properties (fuera del repositorio, ver
+    // keystore.properties.example). Si el archivo no existe, la release se genera sin firmar en vez de fallar.
+    signingConfigs {
+        if (keystoreProperties.isNotEmpty()) {
+            create("release") {
+                storeFile = file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
+    // Ambientes estables, sin tocar la configuración a mano antes de cada compilación:
+    //  - dev:  desarrollo y pruebas internas. Otro applicationId (se instala junto a la de prod),
+    //          otro nombre visible y herramientas de prueba en debug.
+    //  - prod: la versión candidata que se entrega a los testers.
+    // Las dos apps están registradas en el mismo proyecto de Firebase (google-services.json tiene ambas).
+    flavorDimensions += "ambiente"
+    productFlavors {
+        create("dev") {
+            dimension = "ambiente"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            resValue("string", "app_name", "Recordatorios Dev")
+            buildConfigField("String", "AMBIENTE", "\"dev\"")
+        }
+        create("prod") {
+            dimension = "ambiente"
+            resValue("string", "app_name", "Recordatorios")
+            buildConfigField("String", "AMBIENTE", "\"prod\"")
+        }
     }
 
     buildTypes {
         release {
+            // R8: reduce y optimiza el código de la release
             optimization {
                 enable = true
                 packageScope = setOf("androidx.**", "kotlin.**", "kotlinx.**")
             }
+            signingConfigs.findByName("release")?.let { signingConfig = it }
         }
     }
     compileOptions {
@@ -52,6 +86,7 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+        resValues = true      // permite que cada flavor defina su propio app_name
     }
 }
 
@@ -75,17 +110,21 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.compose.material.icons.core)
 
-    // Actividad 3: preferencias, base de datos local y servicio remoto
+    // Actividad 3: preferencias y base de datos local
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.converter.kotlinx.serialization)
-    implementation(libs.okhttp)
-    implementation(libs.okhttp.logging.interceptor)
+
+    // Actividad 4: Firebase (las versiones las fija el BoM, así Auth y Firestore son compatibles entre sí)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    // .await(): convierte las Task de Firebase en funciones suspend para usarlas con Coroutines
+    implementation(libs.kotlinx.coroutines.play.services)
 
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)   // runTest y Dispatchers.setMain para probar ViewModels
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)

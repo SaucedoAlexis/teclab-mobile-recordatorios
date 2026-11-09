@@ -9,9 +9,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import kotlinx.coroutines.launch
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.recordatorios.data.preferencias.Tema
-import com.example.recordatorios.ui.navegacion.NavegacionRecordatorios
+import androidx.lifecycle.lifecycleScope
+import com.example.recordatorios.ui.navegacion.RaizApp
 import com.example.recordatorios.ui.theme.RecordatoriosTheme
 
 class MainActivity : ComponentActivity() {
@@ -35,11 +37,21 @@ class MainActivity : ComponentActivity() {
                 )
             }
             RecordatoriosTheme(darkTheme = oscuro) {
-                NavegacionRecordatorios(
+                RaizApp(
+                    auth = app.auth,
                     repositorio = app.repositorio,
-                    preferencias = app.preferencias
+                    preferencias = app.preferencias,
+                    pruebaAcceso = app.pruebaAccesoCruzado
                 )
             }
         }
+    }
+
+    // Cada vez que la app vuelve a primer plano (incluida la reapertura) se consulta al servicio
+    // si la sesión guardada sigue siendo válida. Sin conexión, la sesión se mantiene.
+    override fun onStart() {
+        super.onStart()
+        val app = application as RecordatoriosApplication
+        lifecycleScope.launch { app.auth.verificarSesion() }
     }
 }

@@ -26,4 +26,7 @@ interface RecordatorioRepository {
     fun observarCantidadSinSincronizar(): Flow<Int>
 
     suspend fun sincronizar(): ResultadoSincronizacion
+
+    // Actividad 4: borra del teléfono los recordatorios de una cuenta (se usa al cerrar sesión)
+    suspend fun borrarDatosLocales(uid: String)
 }

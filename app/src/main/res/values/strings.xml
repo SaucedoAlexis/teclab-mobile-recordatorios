@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Recordatorios</string>
 
     <!-- Títulos de pantalla -->
     <string name="titulo_listado">Mis recordatorios</string>
@@ -34,7 +33,7 @@
     <string name="sync_sincronizado">✓ Sincronizado</string>
     <string name="sync_pendiente">⟳ Pendiente de sincronizar</string>
     <string name="sync_pendiente_borrar">⟳ Pendiente de eliminar</string>
-    <string name="sync_error">⚠ Rechazado por el servidor</string>
+    <string name="sync_error">⚠ Rechazado por la nube</string>
 
     <!-- Formulario -->
     <string name="campo_titulo">Título</string>
@@ -55,7 +54,7 @@
     <string name="detalle_sincronizacion">Sincronización</string>
     <string name="detalle_identificador">Identificador</string>
     <string name="confirmar_eliminar_titulo">¿Eliminar el recordatorio?</string>
-    <string name="confirmar_eliminar_texto">Se va a eliminar \"%1$s\". Si no hay conexión, se borra del servidor cuando vuelva la red.</string>
+    <string name="confirmar_eliminar_texto">Se va a eliminar \"%1$s\". Si no hay conexión, se borra de la nube cuando vuelva la red.</string>
 
     <!-- Ajustes -->
     <string name="ajustes_tema">Tema</string>
@@ -66,4 +65,37 @@
     <string name="ajustes_tema_invalido">El tema guardado no era una opción válida. Se usa el del sistema (valor por defecto).</string>
     <string name="ajustes_pruebas">Pruebas (solo en la versión de desarrollo)</string>
     <string name="ajustes_guardar_invalido">Guardar un orden inválido</string>
+    <!-- Acceso (Actividad 4) -->
+    <string name="acceso_titulo_inicio">Iniciá sesión para ver tus recordatorios</string>
+    <string name="acceso_titulo_registro">Creá una cuenta</string>
+    <string name="campo_email">Correo electrónico</string>
+    <string name="campo_contrasena">Contraseña</string>
+    <string name="campo_confirmar_contrasena">Repetir contraseña</string>
+    <string name="accion_iniciar_sesion">Iniciar sesión</string>
+    <string name="accion_registrarse">Crear cuenta</string>
+    <string name="accion_cerrar_sesion">Cerrar sesión</string>
+    <string name="acceso_en_curso">Verificando…</string>
+    <string name="acceso_ir_registro">¿No tenés cuenta? Registrate</string>
+    <string name="acceso_ir_inicio">¿Ya tenés cuenta? Iniciá sesión</string>
+    <string name="acceso_comprobando">Comprobando la sesión…</string>
+    <string name="acceso_sesion_invalida">Tu sesión ya no es válida (la cuenta se deshabilitó o se eliminó). Iniciá sesión de nuevo.</string>
+    <string name="error_campo_vacio">Completá este campo.</string>
+    <string name="error_email_formato">El correo no tiene un formato válido.</string>
+    <string name="error_contrasena_corta">La contraseña debe tener al menos 6 caracteres.</string>
+    <string name="error_contrasenas_distintas">Las contraseñas no coinciden.</string>
+    <string name="error_auth_credenciales">El correo o la contraseña no son correctos.</string>
+    <string name="error_auth_email_en_uso">Ya existe una cuenta con ese correo.</string>
+    <string name="error_auth_deshabilitada">Esta cuenta está deshabilitada.</string>
+    <string name="error_auth_demasiados_intentos">Demasiados intentos. Esperá unos minutos y probá de nuevo.</string>
+    <string name="error_auth_sin_conexion">No hay conexión. Para iniciar sesión o registrarte se necesita internet.</string>
+    <string name="error_auth_desconocido">No se pudo completar la operación. Probá de nuevo.</string>
+    <string name="ajustes_cuenta">Cuenta</string>
+    <string name="ajustes_sesion_de">Sesión iniciada como %1$s</string>
+    <string name="confirmar_cerrar_sesion_titulo">¿Cerrar sesión?</string>
+    <string name="confirmar_cerrar_sesion_texto">Se van a borrar de este teléfono los recordatorios de tu cuenta. Los que ya están sincronizados siguen guardados en la nube y vuelven a aparecer cuando inicies sesión.</string>
+    <string name="confirmar_cerrar_sesion_pendientes">Atención: tenés %1$d cambios sin sincronizar. Si cerrás sesión ahora, se pierden. Conectate a internet y sincronizá antes de salir.</string>
+    <string name="prueba_acceso_titulo">Prueba de acceso a otra cuenta</string>
+    <string name="prueba_acceso_mi_uid">Mi uid: %1$s</string>
+    <string name="prueba_acceso_uid_ajeno">uid de otra cuenta</string>
+    <string name="prueba_acceso_ejecutar">Intentar leer, escribir y borrar</string>
 </resources>

@@ -1,7 +1,7 @@
 package com.example.recordatorios.data
 
 import com.example.recordatorios.data.local.RecordatorioEntity
-import com.example.recordatorios.data.remoto.RecordatorioDto
+import com.example.recordatorios.data.remoto.RecordatorioRemoto
 import com.example.recordatorios.domain.Categoria
 import com.example.recordatorios.domain.EstadoRecordatorio
 import com.example.recordatorios.domain.EstadoSync
@@ -9,7 +9,7 @@ import com.example.recordatorios.domain.Prioridad
 import com.example.recordatorios.domain.Recordatorio
 
 // Funciones de mapeo explícitas entre las tres representaciones de un recordatorio:
-//   RecordatorioDto (servicio)  <->  RecordatorioEntity (Room)  <->  Recordatorio (app)
+//   RecordatorioRemoto (Firestore)  <->  RecordatorioEntity (Room)  <->  Recordatorio (app)
 
 // ---------- Room -> app ----------
 fun RecordatorioEntity.aModelo(): Recordatorio = Recordatorio(
@@ -27,8 +27,9 @@ fun RecordatorioEntity.aModelo(): Recordatorio = Recordatorio(
 )
 
 // ---------- app -> Room ----------
-fun Recordatorio.aEntidad(estadoSync: EstadoSync): RecordatorioEntity = RecordatorioEntity(
+fun Recordatorio.aEntidad(estadoSync: EstadoSync, uid: String): RecordatorioEntity = RecordatorioEntity(
     id = id,
+    uid = uid,
     titulo = titulo,
     descripcion = descripcion,
     categoria = categoria.nombre,
@@ -40,44 +41,40 @@ fun Recordatorio.aEntidad(estadoSync: EstadoSync): RecordatorioEntity = Recordat
     estadoSync = estadoSync
 )
 
-// ---------- Room -> servicio ----------
-fun RecordatorioEntity.aDto(): RecordatorioDto = RecordatorioDto(
+// ---------- Room -> nube (Firestore) ----------
+fun RecordatorioEntity.aRemoto(): RecordatorioRemoto = RecordatorioRemoto(
     id = id,
-    title = titulo,
-    description = descripcion,
-    category = categoria,
-    priority = when (prioridad) {
-        "ALTA" -> "HIGH"
-        "BAJA" -> "LOW"
-        else -> "MEDIUM"
-    },
-    done = completado,
-    doneAt = fechaCompletado,
-    createdAt = fechaCreacion,
-    updatedAt = actualizadoEn
+    uid = uid,
+    titulo = titulo,
+    descripcion = descripcion,
+    categoria = categoria,
+    prioridad = prioridad,
+    completado = completado,
+    fechaCompletado = fechaCompletado,
+    fechaCreacion = fechaCreacion,
+    actualizadoEn = actualizadoEn
 )
 
-// ---------- servicio -> Room ----------
-// Lo que llega del servidor ya está confirmado, por eso queda SINCRONIZADO
-fun RecordatorioDto.aEntidad(): RecordatorioEntity = RecordatorioEntity(
+// ---------- nube -> Room ----------
+// Lo que llega de la nube ya está confirmado, por eso queda SINCRONIZADO.
+// El uid se toma de la sesión (no del documento): una fila local siempre pertenece a la cuenta activa.
+fun RecordatorioRemoto.aEntidad(uidSesion: String): RecordatorioEntity = RecordatorioEntity(
     id = id,
-    titulo = title,
-    descripcion = description,
-    categoria = category,
-    prioridad = when (priority) {
-        "HIGH" -> "ALTA"
-        "LOW" -> "BAJA"
-        else -> "MEDIA"   // valor desconocido: se corrige antes de guardarlo en Room
-    },
-    completado = done,
-    fechaCompletado = doneAt,
-    fechaCreacion = createdAt,
-    actualizadoEn = updatedAt,
+    uid = uidSesion,
+    titulo = titulo,
+    descripcion = descripcion,
+    categoria = categoria,
+    // Valor desconocido: se corrige antes de guardarlo en Room
+    prioridad = prioridad.takeIf { it in setOf("ALTA", "MEDIA", "BAJA") } ?: "MEDIA",
+    completado = completado,
+    fechaCompletado = fechaCompletado,
+    fechaCreacion = fechaCreacion,
+    actualizadoEn = actualizadoEn,
     estadoSync = EstadoSync.SINCRONIZADO
 )
 
-// Conflicto: el mismo recordatorio cambió en el teléfono y en el servidor.
+// Conflicto: el mismo recordatorio cambió en el teléfono y en la nube (por ejemplo, desde otro dispositivo).
 // Estrategia "gana el último que escribió" (last-write-wins): se conserva la versión más reciente.
 // Si empatan, gana la local, que todavía falta enviar.
-fun resolverConflicto(local: RecordatorioEntity, remoto: RecordatorioDto): RecordatorioEntity =
-    if (local.actualizadoEn >= remoto.updatedAt) local else remoto.aEntidad()
+fun resolverConflicto(local: RecordatorioEntity, remoto: RecordatorioRemoto): RecordatorioEntity =
+    if (local.actualizadoEn >= remoto.actualizadoEn) local else remoto.aEntidad(local.uid)

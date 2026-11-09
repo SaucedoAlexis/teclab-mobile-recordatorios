@@ -1,103 +1,82 @@
 # Recordatorios (Programación Mobile · TECLAB)
 
 App Android de recordatorios que se desarrolla a lo largo de la materia.
-Versión actual: **3.0 (Actividad 3)**: persistencia con Room y DataStore, repositorio local-first,
-servicio remoto con Retrofit + OkHttp y sincronización controlada.
+Versión actual: **4.0.0-rc1 (Actividad 4)**: Firebase Authentication, sincronización con Cloud Firestore
+sobre la arquitectura local-first (Room), reglas de seguridad por cuenta y release firmada (APK + AAB).
 
 | Actividad | Qué agrega |
 |-----------|------------|
 | 1 | Modelos con data classes y sealed classes, validaciones y listado con Compose |
 | 2 | Navegación, ViewModel, UiState, StateFlow y repositorio en memoria |
-| 3 | DataStore, Room, repositorio local-first, Retrofit/OkHttp, sincronización y modo sin conexión |
+| 3 | DataStore, Room, repositorio local-first, servicio remoto, sincronización y modo sin conexión |
+| 4 | Firebase Authentication, Cloud Firestore (`users/{uid}/reminders/{id}`), reglas de seguridad, Room por cuenta, flavors `dev`/`prod`, versión y firma de la release |
 
 ## Requisitos
 
-- Android Studio (probado con AGP 9.4 y JDK 17).
-- Un emulador o un teléfono con Android 7.0 (API 24) o superior. Probado en un emulador Pixel 10a con API 37.
-- Python 3.8 o superior, solo para el servidor simulado (no necesita librerías extra).
+- Android Studio (probado con AGP 9.4 y el JDK que trae Android Studio).
+- Un emulador o teléfono con Android 7.0 (API 24) o superior **con Google Play services**. Probado en un emulador Pixel 10a, API 37.
+- Un proyecto de Firebase con Authentication (correo y contraseña) y Cloud Firestore.
 
-## 1. Configurar
+## 1. Configurar Firebase
 
-El proyecto lee la URL del servicio y la clave desde `api.properties` (en la raíz).
-Ese archivo **no se sube al repositorio**. Hay un ejemplo sin secretos:
+1. En la [consola de Firebase](https://console.firebase.google.com/) crear un proyecto y registrar dos apps Android:
+   `com.example.recordatorios` (prod) y `com.example.recordatorios.dev` (dev).
+2. Descargar `google-services.json` (desde *Configuración del proyecto*; trae las dos apps) y copiarlo en `app/`.
+3. *Authentication → Método de acceso*: habilitar **Correo electrónico/contraseña**.
+4. *Firestore*: crear la base en modo producción y publicar las reglas de [`firestore.rules`](firestore.rules).
 
-```bash
-cp api.properties.example api.properties
-```
+> `app/google-services.json` no está en el repositorio (es público). El zip de la entrega lo incluye.
 
-| Propiedad | Para qué sirve | Valor de ejemplo |
-|-----------|----------------|------------------|
-| `api.baseUrl` | URL base del servicio (tiene que terminar con `/`) | `http://localhost:3000/` |
-| `api.key` | Clave que se manda en el encabezado `X-Api-Key` | `clave-de-prueba-local` |
-
-> Si no existe `api.properties`, Gradle usa los valores de `api.properties.example`, así que el proyecto compila igual.
-
-## 2. Levantar el servidor simulado
+## 2. Firma de la release (opcional para compilar debug)
 
 ```bash
-cd servidor-simulado
-python servidor.py
+cp keystore.properties.example keystore.properties
 ```
 
-Queda escuchando en `http://localhost:3000/` y guarda los datos en `servidor-simulado/datos.json`.
-La primera vez arranca con 4 recordatorios de ejemplo.
-
-Con el emulador ya abierto, conectar su puerto 3000 con el de la PC (hay que repetirlo si se reinicia el emulador):
-
-```bash
-adb reverse tcp:3000 tcp:3000
-```
-
-Para probar errores, abrir estas direcciones en el navegador de la PC:
-
-| Dirección | Qué simula |
-|-----------|------------|
-| `http://localhost:3000/_modo/normal` | Todo funciona |
-| `http://localhost:3000/_modo/error500` | Error del servidor (500) |
-| `http://localhost:3000/_modo/lento` | Tarda 15 s: la app corta a los 10 s (timeout) |
-| `http://localhost:3000/_modo/rechazar400` | Rechaza los recordatorios enviados (400) |
+Completar la ruta del keystore (fuera del repositorio), las contraseñas y el alias.
+`keystore.properties` y los `.jks` están en `.gitignore`. Si el archivo no existe, la release se genera sin firmar.
 
 ## 3. Compilar y ejecutar
 
-Desde Android Studio: abrir la carpeta del proyecto, esperar la sincronización de Gradle y ejecutar ▶ `app`.
+Variantes: flavor `dev` o `prod` × build type `debug` o `release`.
 
-O desde la terminal:
-
-```bash
-./gradlew assembleDebug
-adb install -r app/build/outputs/apk/debug/app-debug.apk
-```
-
-Pruebas unitarias (mapeos, resolución de conflictos y preferencias inválidas):
+| Flavor | applicationId | Nombre | Uso |
+|--------|---------------|--------|-----|
+| `dev` | `com.example.recordatorios.dev` | Recordatorios Dev | Desarrollo; en debug incluye herramientas de prueba en Ajustes |
+| `prod` | `com.example.recordatorios` | Recordatorios | Versión para testers |
 
 ```bash
-./gradlew testDebugUnitTest
+./gradlew assembleDevDebug                         # para desarrollar
+./gradlew assembleProdRelease bundleProdRelease    # APK firmado + AAB
+./gradlew testProdDebugUnitTest                    # pruebas unitarias
 ```
 
-> La app funciona aunque el servidor no esté levantado: muestra lo guardado en Room y deja los cambios pendientes de sincronizar.
+Salidas: `app/build/outputs/apk/prod/release/app-prod-release.apk` y `app/build/outputs/bundle/prodRelease/app-prod-release.aab`.
 
 ## Organización del código
 
 ```
 com.example.recordatorios
-├── RecordatoriosApplication.kt   ← crea una sola instancia de cada dependencia
+├── RecordatoriosApplication.kt   ← una sola instancia de Auth, Firestore, Room, DataStore y repositorio
+├── MainActivity.kt               ← verifica la sesión en cada onStart
 ├── data/
-│   ├── preferencias/   DataStore: PreferenciasUsuario, PreferenciasRepository
-│   ├── local/          Room: RecordatorioEntity, RecordatorioDao, BaseDatosRecordatorios, Conversores
-│   ├── remoto/         Retrofit/OkHttp: RecordatorioDto, RecordatoriosApi, ClienteApi, FuenteRemota
-│   ├── red/            ObservadorConexion (ConnectivityManager → Flow)
-│   ├── Mapeos.kt       DTO ↔ entidad ↔ modelo y resolución de conflictos
-│   ├── RecordatorioRepository.kt            ← interfaz
-│   └── RecordatorioRepositoryLocalFirst.kt  ← coordina DataStore, Room y el servicio
-├── domain/       modelos de la app (Recordatorio, Prioridad, EstadoSync…)
-├── validation/   reglas del formulario
-└── ui/           pantallas Compose: lista, crear (crear/editar), detalle, ajustes, navegación
+│   ├── auth/           AuthRepository (interfaz), FirebaseAuthRepository, CerrarSesion
+│   ├── local/          Room: RecordatorioEntity (con uid), RecordatorioDao, migración 1→2
+│   ├── remoto/         FuenteRemotaRecordatorios (interfaz), FuenteRemotaFirestore, RecordatorioRemoto
+│   ├── preferencias/   DataStore
+│   ├── red/            ObservadorConexion
+│   ├── Mapeos.kt       Firestore ↔ Room ↔ modelo y resolución de conflictos
+│   └── RecordatorioRepositoryLocalFirst.kt  ← coordina sesión, Room y Firestore
+├── domain/  validation/
+└── ui/  acceso/ (login y registro), lista/, crear/, detalle/, ajustes/, navegacion/ (RaizApp)
 ```
 
-## Cómo funciona la sincronización (resumen)
+Ningún `@Composable` usa Firebase: las pantallas solo conocen los ViewModels y los tipos propios
+(`EstadoSesion`, `ErrorAuth`, `ResultadoSincronizacion`).
 
-1. Toda escritura se guarda **primero en Room** con estado `PENDIENTE` (o `PENDIENTE_BORRAR`). La pantalla se actualiza enseguida por Flow.
-2. Cuando hay red (al abrir la app, al volver la conexión, después de un cambio o con el botón ⟳), el repositorio envía los pendientes con `PUT /recordatorios/{id}` o `DELETE` y después descarga la lista del servidor.
-3. El **id es un UUID creado en el teléfono** y el servidor usa el mismo: reenviar un recordatorio lo actualiza, no lo duplica.
-4. Un `Mutex` impide dos sincronizaciones al mismo tiempo. Los timeouts y errores 5xx se reintentan hasta 3 veces (esperas de 2 s y 4 s). Los 4xx no se reintentan solos.
-5. Si un recordatorio cambió en los dos lados, gana la versión con `updatedAt` más reciente (last-write-wins).
+## Cómo funciona
+
+1. **Sesión:** `RaizApp` muestra el acceso o los recordatorios según `EstadoSesion`. Firebase conserva la sesión; al volver a primer plano se verifica con `reload()` (cuenta inhabilitada o eliminada → vuelve al acceso con aviso).
+2. **Local-first:** toda escritura va primero a Room (`PENDIENTE`) con el `uid` de la cuenta activa; la pantalla se actualiza por Flow con o sin red.
+3. **Sincronización:** con red y sesión, los pendientes se envían a `users/{uid}/reminders/{id}` con `set()` y el **mismo UUID** que en Room (un reintento no duplica). Después se descarga la colección de la cuenta. Conflictos: gana el `actualizadoEn` más reciente.
+4. **Seguridad:** las reglas de Firestore solo permiten leer y escribir debajo del propio uid y validan los datos. Al cerrar sesión se borran del teléfono los recordatorios de la cuenta; al iniciar sesión, los de cualquier otra.
